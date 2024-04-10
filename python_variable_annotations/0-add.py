@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""
-    Module: 0-add
-    Contains:
-    Function: add
-"""
+'''
+    Write a type-annotated function add
+    as arguments and returns their sum as a float.
+'''
+
 
 def add(a: float, b: float) -> float:
-    """Adds two floats and returns their sum."""
+    """Return sum of a and b"""
     return a + b
