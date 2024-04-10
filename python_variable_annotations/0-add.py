@@ -1,17 +1,12 @@
 #!/usr/bin/env python3
-
+"""
+Module: 0-add
+Contains:
+    Function: add
+"""
 def add(a: float, b: float) -> float:
-    """
-    Adds two floats and returns their sum.
-    
-    Args:
-        a (float): The first number.
-        b (float): The second number.
-    
-    Returns:
-        float: The sum of a and b.
-    """
+    """Adds two floats and returns their sum."""
     return a + b
 
 if __name__ == "__main__":
-    print(add.__annotations__)
+    add()
