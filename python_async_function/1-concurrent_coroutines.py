@@ -22,11 +22,3 @@ async def wait_n(n: int, max_delay: int = 10) -> List[float]:
         await spawn
 
     return sorted(delay_ls)
-
-async def main():
-    print(await wait_n(5, 5))
-    print(await wait_n(10, 7))
-    print(await wait_n(10, 0))
-
-if __name__ == "__main__":
-    asyncio.run(main())
