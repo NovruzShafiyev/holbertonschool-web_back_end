@@ -4,10 +4,10 @@ Test file for printing the correct output of the wait_n coroutine
 '''
 
 import asyncio
+import random
 from typing import List
-from random import uniform
-from asyncio import sleep
 wait_random = __import__('0-basic_async_syntax').wait_random
+
 
 async def wait_n(n: int, max_delay: int = 10) -> List[float]:
     """list of all the delays"""
@@ -21,4 +21,4 @@ async def wait_n(n: int, max_delay: int = 10) -> List[float]:
     for spawn in spawn_ls:
         await spawn
 
-    return sorted(delay_ls)
+    return delay_ls
