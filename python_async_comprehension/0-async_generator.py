@@ -4,9 +4,11 @@
 
 import asyncio
 import random
+from typing import Generator
 
-async def async_generator():
-    """Coroutine that yields random numbers after waiting asynchronously for 1 second."""
-    for _ in range(10):
+
+async def async_generator() -> Generator[float, None, None]:
+    """The coroutine will loop 10 times"""
+    for i in range(10):
         await asyncio.sleep(1)
-        yield random.uniform(0, 10)
+        yield 10 * random.random()
