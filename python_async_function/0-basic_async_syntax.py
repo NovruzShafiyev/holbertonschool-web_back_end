@@ -21,4 +21,8 @@ async def wait_random(max_delay: Union[int, float] = 10) -> float:
         float: The random delay waited.
     """
     await asyncio.sleep(random.uniform(0, max_delay))
-    return max_delay
+    return random.uniform(0, max_delay)
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()
