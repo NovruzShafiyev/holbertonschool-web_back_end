@@ -1,48 +1,42 @@
 #!/usr/bin/python3
-""" FIFOCache module
-"""
+""" FIFO caching """
 from base_caching import BaseCaching
 
-class FIFOCache(BaseCaching):
-    """ FIFOCache class
-    """
 
+class FIFOCache(BaseCaching):
+    """ Class that inherits from BaseCaching and is a caching system """
     def __init__(self):
-        """ Initializes the FIFO cache
-        """
         super().__init__()
+        self.data = {}
+        self.next_in, self.next_out = 0, 0
+
+    def _pop(self):
+        """ FIFO algorithm, remove element """
+        self.next_out += 1
+        key = self.data[self.next_out]
+        del self.data[self.next_out], self.cache_data[key]
+
+    def _push(self, key, item):
+        """ FIFO algorithm, add element """
+        if len(self.cache_data) > BaseCaching.MAX_ITEMS - 1:
+            print("DISCARD: {}".format(self.data[self.next_out + 1]))
+            self._pop()
+        self.cache_data[key] = item
+        self.next_in += 1
+        self.data[self.next_in] = key
 
     def put(self, key, item):
-        """ Add an item in the cache
-        """
-        if key is None or item is None:
-            return
-
-        if len(self.cache_data) >= self.MAX_ITEMS:
-            discarded_key = next(iter(self.cache_data))
-            del self.cache_data[discarded_key]
-            print("DISCARD:", discarded_key)
-
-        self.cache_data[key] = item
+        """ Assign to the dictionary """
+        if key and item:
+            if key in self.cache_data:
+                self.cache_data[key] = item
+            else:
+                self._push(key, item)
 
     def get(self, key):
-        """ Get an item by key
-        """
-        if key is None:
+        """ Return the value linked """
+        if key is None or self.cache_data.get(key) is None:
             return None
-
-        return self.cache_data.get(key)
-
-if __name__ == "__main__":
-    my_cache = FIFOCache()
-    my_cache.put("A", "Hello")
-    my_cache.put("B", "World")
-    my_cache.put("C", "Holberton")
-    my_cache.put("D", "School")
-    my_cache.print_cache()
-    my_cache.put("E", "Battery")
-    my_cache.print_cache()
-    my_cache.put("C", "Street")
-    my_cache.print_cache()
-    my_cache.put("F", "Mission")
-    my_cache.print_cache()
+        if key in self.cache_data:
+            value = self.cache_data[key]
+            return value
