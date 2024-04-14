@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""100-safe_first_element.py"""
-from typing import Sequence, Union, Any
 
+from typing import Any, Optional, Sequence
 
-# The types of the elements of the input are not know
-def safe_first_element(lst: Sequence[Any]) -> Union[Any, None]:
-    """safe_first_element"""
+def safe_first_element(lst: Sequence) -> Optional[Any]:
+    """Return the first element of a sequence if it exists, otherwise return None."""
     if lst:
         return lst[0]
     else:
         return None
+
+if __name__ == "__main__":
+    print(safe_first_element.__annotations__)
