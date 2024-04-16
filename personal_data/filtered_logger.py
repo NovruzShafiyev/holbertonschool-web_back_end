@@ -1,21 +1,35 @@
 #!/usr/bin/env python3
-"""
-Personal data
-"""
+'''Filtered logger'''
+from typing import List
 import re
+
 
 def filter_datum(fields: List[str], redaction: str, message: str,
                  separator: str) -> str:
-    """ function called filter_datum returns the log message obfuscated """
-    lst = message.split(separator)
+    '''Filtering values of the required fields'''
+    for item in fields:
+        message = re.sub(f"{item}=.*?{separator}",
+                         f"{item}={redaction}{separator}", message)
+    return message
 
-    for f in fields:
-        for i in range(len(lst)):
-            if lst[i].startswith(f):
-                subst = f + '=' + redaction
-                lst[i] = re.sub(lst[i], '', lst[i])
-                lst[i] = subst
-    return separator.join(lst)
+
+def main() -> None:
+    '''Main'''
+    connector = get_db()
+
+    cursor = connector.cursor()
+    cursor.execute("SELECT * FROM users")
+
+    data = cursor.fetchall()
+
+    logger = get_logger()
+
+    for line in data:
+        logger.info(line)
+
+    cursor.close()
+    connector.close()
+
 
 if __name__ == "__main__":
     main()
