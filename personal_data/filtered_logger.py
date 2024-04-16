@@ -16,3 +16,6 @@ def filter_datum(fields: List[str], redaction: str, message: str,
                 lst[i] = re.sub(lst[i], '', lst[i])
                 lst[i] = subst
     return separator.join(lst)
+
+if __name__ == "__main__":
+    main()
