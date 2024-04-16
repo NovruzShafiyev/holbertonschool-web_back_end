@@ -1,23 +1,36 @@
-#!/usr/bin/env python3
+import logging
+import os
+import mysql.connector
 
-"""
-filtered_logger module
-"""
+from typing import Tuple
 
-import re
+PII_FIELDS: Tuple[str, str, str, str, str] = ("name", "email", "phone", "ssn", "password")
 
+def get_db():
+    """Return a connector to the database (mysql.connector.connection.MySQLConnection object)."""
+    username = os.getenv('PERSONAL_DATA_DB_USERNAME', 'root')
+    password = os.getenv('PERSONAL_DATA_DB_PASSWORD', '')
+    host = os.getenv('PERSONAL_DATA_DB_HOST', 'localhost')
+    db_name = os.getenv('PERSONAL_DATA_DB_NAME', '')
 
-def filter_datum(fields: list[str], redaction: str, message: str, separator: str) -> str:
-    """
-    Replace occurrences of certain field values in the log message with redaction.
+    return mysql.connector.connect(
+        user=username,
+        password=password,
+        host=host,
+        database=db_name
+    )
 
-    Args:
-        fields: a list of strings representing all fields to obfuscate
-        redaction: a string representing by what the field will be obfuscated
-        message: a string representing the log line
-        separator: a string representing by which character is separating all fields in the log line (message)
+def main():
+    """Retrieve all rows in the users table and display each row under a filtered format."""
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM users")
+    for row in cursor.fetchall():
+        filtered_row = {field: "***" for field in PII_FIELDS}
+        filtered_row.update(row)
+        logging.info(filtered_row)
+    cursor.close()
+    db.close()
 
-    Returns:
-        str: obfuscated log message
-    """
-    return re.sub(r'(?<=^|{})(?:{}=[^{}]*)(?={}|\Z)'.format(separator, '|'.join(fields), separator, separator), f'{fields[0]}={redaction}', message)
+if __name__ == "__main__":
+    main()
