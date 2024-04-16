@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
 """
-Filter log messages by obfuscating specified fields.
+Personal data
 """
-
 import re
 
-def filter_datum(fields: list[str], redaction: str, message: str, separator: str) -> str:
-  """
-  Filters a log message by obfuscating specified fields.
-  """
-  pattern = rf"(?:{separator})({'|'.join(fields)})=(.*?)(?={separator}|$)"
-  return re.sub(pattern, rf"\1={redaction}", message)
+def filter_datum(fields: List[str], redaction: str, message: str,
+                 separator: str) -> str:
+    """ function called filter_datum returns the log message obfuscated """
+    lst = message.split(separator)
+
+    for f in fields:
+        for i in range(len(lst)):
+            if lst[i].startswith(f):
+                subst = f + '=' + redaction
+                lst[i] = re.sub(lst[i], '', lst[i])
+                lst[i] = subst
+    return separator.join(lst)
