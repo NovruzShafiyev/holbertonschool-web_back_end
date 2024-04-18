@@ -15,5 +15,5 @@ def hash_password(password: str) -> bytes:
 
 if __name__ == "__main__":
     password = "MyAmazingPassw0rd"
-    print(hash_password(password))
-    print(hash_password(password))
+    print(hash_password(password).decode('utf-8'))
+    print(hash_password(password).decode('utf-8'))
