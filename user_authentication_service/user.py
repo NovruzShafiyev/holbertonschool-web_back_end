@@ -9,7 +9,8 @@ Base = declarative_base()
 
 class User(Base):
     """
-    User class representing the users table in the database
+    User class representing the
+    users table in the database
     """
     __tablename__ = 'users'
 
