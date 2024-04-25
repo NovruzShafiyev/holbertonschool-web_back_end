@@ -1,100 +1,155 @@
 #!/usr/bin/env python3
-"""app module"""
-from flask import Flask, abort, jsonify, request, redirect
+""" Flask module """
+from flask import Flask, jsonify, request, abort, redirect, make_response
+from sqlalchemy.orm.exc import NoResultFound
 from auth import Auth
 
 app = Flask(__name__)
 AUTH = Auth()
 
 
-@app.route('/', methods=['GET'])
-def index():
-    """ GET /
-    Return:
-      - welcome message
+@app.route('/reset_password', methods=['PUT'])
+def update_password() -> str:
+    """ Change the password
+
+        args:
+            email: Expected
+
+        return
+            200 if it exist otherwise 403
     """
-    return jsonify({"message": "Bienvenue"})
-
-
-@app.route('/users', methods=['POST'])
-def user_register():
-    """ POST /users"""
-    email = request.form.get('email')
-    password = request.form.get('password')
+    try:
+        email = request.form['email']
+        reset_tok = request.form["reset_token"]
+        new_pwd = request.form['new_password']
+    except KeyError:
+        abort(403)
 
     try:
-        user = Auth.register_user(email, password)
-        return jsonify({"email": user.email, "message": "user created"})
+        AUTH.update_password(reset_tok, new_pwd)
     except ValueError:
-        return jsonify({"message": "email already registered"}), 400
+        abort(403)
+
+    return jsonify({"email": email, "message": "Password updated"}), 200
 
 
-@app.route('/sessions', methods=['POST'], strict_slashes=False)
+@app.route('/reset_password', methods=['POST'])
+def reset_password() -> str:
+    """ Get profile with session id
+
+        args:
+            email: Expected
+
+        return
+            200 if it exist otherwise 403
+    """
+    try:
+        email = request.form['email']
+    except KeyError:
+        abort(403)
+
+    token: str = ''
+    try:
+        token = AUTH.get_reset_password_token(email)
+    except ValueError:
+        abort(403)
+
+    return jsonify({"email": email, "reset_token": token}), 200
+
+
+@ app.route('/profile', methods=['GET'])
+def profile() -> str:
+    """ Get profile with session id
+
+        args:
+            session_id: Session identificator
+
+        return
+            Email 200 otherwise 403 status
+    """
+    session_id = request.cookies.get('session_id', None)
+
+    if session_id is None:
+        abort(403)
+
+    user = AUTH.get_user_from_session_id(session_id)
+
+    if user is None:
+        abort(403)
+
+    return jsonify({"email": user.email}), 200
+
+
+@ app.route('/sessions', methods=['DELETE'])
+def logout() -> str:
+    """ Logout session
+
+        args:
+            session_id
+
+        return
+            redirect main or 403 error
+    """
+    session_id = request.cookies.get('session_id', None)
+
+    if session_id is None:
+        abort(403)
+
+    user = AUTH.get_user_from_session_id(session_id)
+
+    if user is None:
+        abort(403)
+
+    AUTH.destroy_session(user.id)
+
+    return redirect('/', code=302)
+
+
+@ app.route('/sessions', methods=['POST'])
 def login() -> str:
-    """login function"""
-    email = request.form.get("email")
-    password = request.form.get("password")
-
-    if AUTH.valid_login(email, password):
-        session_id = AUTH.create_session(email)
-        response = jsonify({"email": "{}".format(email),
-                            "message": "logged in"})
-        response.set_cookie("session_id", session_id)
-        return response
-    else:
+    """ Sessions Login User """
+    try:
+        email = request.form['email']
+        pwd = request.form['password']
+    except KeyError:
         abort(401)
 
+    if (AUTH.valid_login(email, pwd)):
+        session_id = AUTH.create_session(email)
+        if session_id is not None:
+            response = jsonify({"email": email, "message": "logged in"})
+            response.set_cookie("session_id", session_id)
+            return response
 
-@app.route('/sessions', methods=['DELETE'], strict_slashes=False)
-def logout() -> str:
-    """logout function"""
-    session_id = request.cookies.get("session_id")
+    abort(401)
+
+
+@ app.route('/', methods=['GET'])
+def hello_world() -> str:
+    """ Greetings """
+    msg = {"message": "Bienvenue"}
+    return jsonify(msg)
+
+
+@ app.route('/users', methods=['POST'])
+def register_user() -> str:
+    """ Make a new user """
     try:
-        user = AUTH.get_user_from_session_id(session_id)
-        AUTH.destroy_session(user.id)
-        return redirect('/', 302)
-    except Exception:
-        abort(403)
-
-
-@app.route('/profile', methods=['GET'], strict_slashes=False)
-def profile() -> str:
-    """profile function"""
-    session_id = request.cookies.get("session_id")
-    try:
-        user = AUTH.get_user_from_session_id(session_id)
-        return jsonify({"email": user.email}), 200
-    except Exception:
-        abort(403)
-
-
-@app.route('/reset_password', methods=['POST'], strict_slashes=False)
-def get_reset_password_token() -> str:
-    """get_reset_password_token function"""
-    email = request.form.get("email")
-    try:
-        reset_token = AUTH.get_reset_password_token(email)
-        return jsonify({"email": email, "reset_token": reset_token}), 200
-    except Exception:
-        abort(403)
-
-
-@app.route('/reset_password', methods=['PUT'], strict_slashes=False)
-def update_pasword() -> str:
-    """update_pasword function
-    Return:
-      - update password
-    """
-    email = request.form.get("email")
-    reset_token = request.form.get("reset_token")
-    new_password = request.form.get("new_password")
+        email = request.form['email']
+        pwd = request.form['password']
+    except KeyError:
+        abort(400)
 
     try:
-        AUTH.update_password(reset_token, new_password)
-        return jsonify({"email": email, "message": "Password updated"}), 200
-    except Exception:
-        abort(403)
+        user = AUTH.register_user(email, pwd)
+    except ValueError:
+        msg = {"message": "email already registered"}
+        return jsonify(msg), 400
+
+    msg = {"email": user.email, "message": "user created"}
+
+    return jsonify(msg)
 
 
-if __name__ == '__main__':
-    app.run()
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port="5000")
