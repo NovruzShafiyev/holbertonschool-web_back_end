@@ -1,15 +1,19 @@
 #!/usr/bin/env python3
 """
-Type-annotated function safe_first_element
+Type-annotated function safely_get_value
 """
-from typing import Any, Sequence, Union
+from typing import Any, Mapping, TypeVar, Union
 
 
-def safe_first_element(lst: Sequence[Any]) -> Union[Any, None]:
+def safely_get_value(
+                    dct: Mapping,
+                    key: Any,
+                    default: Union[TypeVar('T'), None] = None
+                    ) -> Union[Any, TypeVar('T')]:
     """
-    Type-annotated function safe_first_element
+    Type-annotated function safely_get_value
     """
-    if lst:
-        return lst[0]
+    if key in dct:
+        return dct[key]
     else:
-        return None
+        return default
