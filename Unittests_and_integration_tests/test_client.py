@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Module with tests for GithubOrgClient class.
+Script Test client.py
 """
 
 import unittest
@@ -12,7 +12,7 @@ from client import GithubOrgClient
 
 class TestGithubOrgClient(unittest.TestCase):
     """
-    Test case for GithubOrgClient class.
+    TestGithubOrgClient class
     """
 
     @parameterized.expand([
@@ -22,7 +22,7 @@ class TestGithubOrgClient(unittest.TestCase):
     @patch('client.GithubOrgClient.get_json')
     def test_org(self, org_name, mock_get_json):
         """
-        Test org method of GithubOrgClient class.
+        Test that GithubOrgClient.org returns the correct value
         """
         expected_url = f"https://api.github.com/orgs/{org_name}"
         expected_result = {"key": "value"}
