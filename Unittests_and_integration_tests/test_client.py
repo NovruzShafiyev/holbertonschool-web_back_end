@@ -25,7 +25,7 @@ class TestGithubOrgClient(unittest.TestCase):
         Test org method of GithubOrgClient class.
         """
         expected_url = f"https://api.github.com/orgs/{org_name}"
-        expected_result = {"key": "value"}  # Adjust expected result as per your implementation
+        expected_result = {"key": "value"}
         mock_get_json.return_value = expected_result
 
         client = GithubOrgClient(org_name)
