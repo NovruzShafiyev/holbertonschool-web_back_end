@@ -1,20 +1,16 @@
 #!/usr/bin/env python3
 """
-Simple Flask app with a single route.
+Welcome to Holberton
 """
-
 from flask import Flask, render_template
-
+from flask_babel import Babel
 app = Flask(__name__)
+babel = Babel(app)
 
 
-@app.route('/')
-def index() -> str:
+@app.route("/", methods=['GET'])
+def helloWorld():
     """
-    Render the index.html template.
+    Hello world
     """
-    return render_template('index.html', title='Welcome to Holberton')
-
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    return render_template('0-index.html')
