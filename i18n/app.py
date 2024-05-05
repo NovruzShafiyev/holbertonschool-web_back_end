@@ -3,6 +3,8 @@
 from flask import Flask, render_template, request, g
 from flask_babel import Babel
 from typing import Union
+import pytz
+import datetime
 
 app = Flask(__name__)
 users = {
@@ -21,7 +23,7 @@ class Config(object):
 
 
 app.config.from_object(Config)
-babel = Babel(app)
+# babel = Babel(app)
 
 
 def get_user() -> Union[dict, None]:
@@ -40,7 +42,7 @@ def get_user() -> Union[dict, None]:
     return user[login_user]
 
 
-@babel.localeselector
+# @babel.localeselector
 def get_locale():
     """Get locale"""
     lang = request.args.get("locale")
@@ -53,19 +55,40 @@ def get_locale():
 
     return Config.BABEL_DEFAULT_LOCALE
 
+# @babel.timezoneselector
+def get_timezone() -> str:
+    try:
+        timezone = request.args.get("timezone")
+        if timezone:
+            pytz.timezone(timezone)
+            print("REQ")
+        elif g.user:
+            timezone = g.user["timezone"]
+            print("USER")
+            pytz.timezone(timezone)
+        else:
+            timezone = Config.BABEL_DEFAULT_TIMEZONE
+            print("DEF")
+            pytz.timezone(timezone)
+    except pytz.UnknownTimeZoneError:
+        timezone = 'UTC'
+
+    return datetime.datetime.now(pytz.timezone(timezone)).strftime("%B %d, %Y %I:%M:%S %p")
+babel = Babel(app, locale_selector=get_locale, timezone_selector=get_timezone)
 
 @app.route('/')
 def home():
     """ Home Page
     """
-    return render_template('6-index.html')
+    return render_template('index.html')
 
 
 @app.before_request
 def before_request():
     """Before request"""
     g.user = get_user()
-
+    g.current_time = get_timezone()
+    print(g.current_time)
 
 if __name__ == "__main__":
     app.run("0.0.0.0", 5000)
