@@ -1,6 +1,6 @@
 # Redis Cache Project
 
-This project implements a Cache class that interfaces with a Redis database to store data with randomly generated keys.
+This project implements a Cache class that interfaces with a Redis database to store and retrieve data with randomly generated keys, as well as counting method calls, storing call history, and replaying call history.
 
 ## Requirements
 
