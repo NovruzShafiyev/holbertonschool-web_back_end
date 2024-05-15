@@ -9,7 +9,6 @@ import redis
 from typing import Callable
 from functools import wraps
 
-# Initialize the Redis client
 redis_client = redis.Redis()
 
 def track_access(method: Callable) -> Callable:
@@ -33,18 +32,16 @@ def track_access(method: Callable) -> Callable:
         Returns:
             str: The HTML content of the URL.
         """
-        # Track access count
         count_key = f"count:{url}"
         redis_client.incr(count_key)
 
-        # Check if the content is cached
         cache_key = f"cached:{url}"
         cached_content = redis_client.get(cache_key)
         if cached_content:
             return cached_content.decode('utf-8')
         
-        # Fetch the HTML content and cache it
         response = method(url)
+        
         redis_client.setex(cache_key, 10, response)
         return response
     
@@ -62,10 +59,9 @@ def get_page(url: str) -> str:
         str: The HTML content of the URL.
     """
     response = requests.get(url)
-    response.raise_for_status()  # Raise an HTTPError for bad responses
+    response.raise_for_status()
     return response.text
 
-# Example usage
 if __name__ == "__main__":
     url = "http://slowwly.robertomurray.co.uk"
     print(get_page(url))
