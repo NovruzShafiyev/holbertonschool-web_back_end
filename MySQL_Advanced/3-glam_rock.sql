@@ -1,13 +1,5 @@
--- Assuming the table name from the metal_bands.sql dump is 'bands' with columns 'band_name', 'style', 'formed', and 'split'
--- If the table or column names are different, adjust accordingly
-
--- Calculate the lifespan for Glam rock bands and order by lifespan in descending order
-SELECT 
-    band_name, 
-    CASE 
-        WHEN split IS NULL THEN YEAR(CURDATE()) - formed 
-        ELSE split - formed 
-    END AS lifespan
-FROM bands
-WHERE style = 'Glam rock'
-ORDER BY lifespan DESC;
+-- SQL script that lists all bands with Glam rock as their main style
+-- Script that performs task
+SELECT band_name AS band_name, IFNULL(split, 2020) - IFNULL(formed, 0) AS lifespan
+FROM metal_bands
+WHERE style LIKE '%Glam rock%'
