@@ -1,19 +1,9 @@
 #!/usr/bin/env python3
-"""
-10-update_topics.py
-Function that changes all topics of a school document based on the name
-"""
+""" 11. Where can I learn Python? """
 
-def update_topics(mongo_collection, name, topics):
-    """
-    Updates the topics of a school document based on the name
+from pymongo import MongoClient
 
-    Args:
-    mongo_collection (pymongo.collection.Collection): The collection object to update.
-    name (str): The name of the school to update.
-    topics (list of str): The list of topics approached in the school.
 
-    Returns:
-    None
-    """
-    mongo_collection.update_many({"name": name}, {"$set": {"topics": topics}})
+def schools_by_topic(mongo_collection, topic):
+    """ returns the list of school having a specific topic """
+    return mongo_collection.find({"topics": topic})
