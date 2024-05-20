@@ -1,35 +1,35 @@
 #!/usr/bin/env python3
 """
-Provides statistics about Nginx logs stored in MongoDB
+Python script that provides some stats
+about Nginx logs stored in MongoDB
 """
 from pymongo import MongoClient
 
-def log_stats():
-    client = MongoClient('mongodb://127.0.0.1:27017')
-    db = client.logs
-    collection = db.nginx
-
-    num_logs = collection.count_documents({})
-    print(f"{num_logs} logs")
-
-    print("Methods:")
-    methods = ["GET", "POST", "PUT", "PATCH", "DELETE"]
-    for method in methods:
-        count = collection.count_documents({"method": method})
-        print(f"\tmethod {method}: {count}")
-
-    status_check_count = collection.count_documents({"method": "GET", "path": "/status"})
-    print(f"{status_check_count} status check")
-
-    print("IPs:")
-    pipeline = [
-        {"$group": {"_id": "$ip", "count": {"$sum": 1}}},
-        {"$sort": {"count": -1}},
-        {"$limit": 10}
-    ]
-    top_ips = collection.aggregate(pipeline)
-    for ip in top_ips:
-        print(f"\t{ip['_id']}: {ip['count']}")
 
 if __name__ == "__main__":
-    log_stats()
+    client = MongoClient('mongodb://127.0.0.1:27017')
+    nginx_collection = client.logs.nginx
+    gets = nginx_collection.count_documents({'method': 'GET'})
+    posts = nginx_collection.count_documents({'method': 'POST'})
+    puts = nginx_collection.count_documents({'method': 'PUT'})
+    patchs = nginx_collection.count_documents({'method': 'PATCH'})
+    deletes = nginx_collection.count_documents({'method': 'DELETE'})
+    params = {'method': 'GET', 'path': '/status'}
+    status_check = nginx_collection.count_documents(params)
+
+    ips_data = nginx_collection.aggregate([
+        {"$group": {"_id": "$ip", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}}, {"$limit": 10}
+    ])
+
+    print(f'{nginx_collection.count_documents({})} logs')
+    print('Methods:')
+    print(f'\tmethod GET: {gets}')
+    print(f'\tmethod POST: {posts}')
+    print(f'\tmethod PUT: {puts}')
+    print(f'\tmethod PATCH: {patchs}')
+    print(f'\tmethod DELETE: {deletes}')
+    print(f'{status_check} status check')
+    print('IPs:')
+    for ip in ips_data:
+        print(f"\t{ip.get('_id')}: {ip.get('count')}")
