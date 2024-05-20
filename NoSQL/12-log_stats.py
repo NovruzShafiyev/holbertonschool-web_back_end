@@ -1,29 +1,45 @@
 #!/usr/bin/env python3
 """
-    script that provides some stats about Nginx logs stored in MongoDB
+Task 11: Retrieves statistics about the logs stored in a MongoDB database and
+    prints the results.
 """
-
-
 from pymongo import MongoClient
 
 
-if __name__ == "__main__":
+def log_stats():
+    """
+    Retrieves statistics about the logs stored in a MongoDB database and prints
+    the results.
 
-    client = MongoClient(host="localhost", port=27017)
+    Returns:
+    None
+    """
+    # Connect to the MongoDB database
+    client = MongoClient('mongodb://127.0.0.1:27017')
+    db = client.logs
+    collection = db.nginx
 
-    collection = client.logs.nginx
+    # Get the total number of logs
+    total_logs = collection.count_documents({})
 
-    # first line
-    numb_docs = collection.count_documents({})
-    print("{} logs".format(numb_docs))
+    # Get the count of each HTTP method
+    http_methods = ["GET", "POST", "PUT", "PATCH", "DELETE"]
+    method_counts = {}
+    for method in http_methods:
+        count = collection.count_documents({"method": method})
+        method_counts[method] = count
+
+    # Get the count of logs with method=GET and path=/status
+    status_check_count = collection.count_documents({"method": "GET",
+                                                    "path": "/status"})
+
+    # Print the statistics
+    print(f"{total_logs} logs")
     print("Methods:")
+    for method, count in method_counts.items():
+        print(f"\tmethod {method}: {count}")
+    print(f"{status_check_count} status check")
 
-    # second line
-    method = ["GET", "POST", "PUT", "PATCH", "DELETE"]
-    for meth in method:
-        numb_each_method = collection.count_documents({"method": meth})
-        print("\tmethod {}: {}".format(meth, numb_each_method))
 
-    get_count = collection.count_documents({"method": "GET",
-                                            "path": "/status"})
-    print("{} status check".format(get_count))
+if __name__ == "__main__":
+    log_stats()
