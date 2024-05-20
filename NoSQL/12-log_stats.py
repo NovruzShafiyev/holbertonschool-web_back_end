@@ -14,15 +14,18 @@ def log_stats():
     db = client.logs
     collection = db.nginx
 
+    # Count total number of documents in the collection
     total_logs = collection.count_documents({})
     print(f"{total_logs} logs")
-    
+
+    # Count documents for each HTTP method
     print("Methods:")
     methods = ["GET", "POST", "PUT", "PATCH", "DELETE"]
     for method in methods:
         count = collection.count_documents({"method": method})
         print(f"\tmethod {method}: {count}")
 
+    # Count documents where method is GET and path is /status
     status_check = collection.count_documents({"method": "GET", "path": "/status"})
     print(f"{status_check} status check")
 
