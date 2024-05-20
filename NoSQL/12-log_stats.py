@@ -10,6 +10,7 @@ def log_stats():
     """
     Provide statistics about Nginx logs stored in MongoDB
     """
+    # Connect to MongoDB
     client = MongoClient('mongodb://127.0.0.1:27017')
     db = client.logs
     collection = db.nginx
