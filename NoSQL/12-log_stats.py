@@ -1,20 +1,29 @@
 #!/usr/bin/env python3
-"""Print info in a collection"""
+"""
+Python script that provides some stats
+about Nginx logs stored in MongoDB
+"""
+from tabnanny import check
+from traceback import print_tb
 from pymongo import MongoClient
 
+
 if __name__ == "__main__":
-    """ Make a check for all elements in a collention """
     client = MongoClient('mongodb://127.0.0.1:27017')
-    collection = client.logs.nginx
+    nginx_collection = client.logs.nginx
+    gets = nginx_collection.count_documents({'method': 'GET'})
+    posts = nginx_collection.count_documents({'method': 'POST'})
+    puts = nginx_collection.count_documents({'method': 'PUT'})
+    patchs = nginx_collection.count_documents({'method': 'PATCH'})
+    deletes = nginx_collection.count_documents({'method': 'DELETE'})
+    params = {'method': 'GET', 'path': '/status'}
+    status_check = nginx_collection.count_documents(params)
 
-    print(f"{collection.estimated_document_count()} logs")
-
-    print("Methods:")
-    for method in ["GET", "POST", "PUT", "PATCH", "DELETE"]:
-        method_count = collection.count_documents({'method': method})
-        print(f"\tmethod {method}: {method_count}")
-
-    check_get = collection.count_documents({
-        'method': 'GET', 'path': "/status"
-    })
-    print(f"{check_get} status check")
+    print(f'{nginx_collection.count_documents({})} logs')
+    print('Methods:')
+    print(f'\tmethod GET: {gets}')
+    print(f'\tmethod POST: {posts}')
+    print(f'\tmethod PUT: {puts}')
+    print(f'\tmethod PATCH: {patchs}')
+    print(f'\tmethod DELETE: {deletes}')
+    print(f'{status_check} status check')
