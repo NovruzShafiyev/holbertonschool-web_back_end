@@ -3,7 +3,7 @@
 from pymongo import MongoClient
 
 if __name__ == "__main__":
-    """ Make a check for all elements in a collention """
+    """ Make a checkk for all elements in a collention """
     client = MongoClient('mongodb://127.0.0.1:27017')
     collection = client.logs.nginx
 
