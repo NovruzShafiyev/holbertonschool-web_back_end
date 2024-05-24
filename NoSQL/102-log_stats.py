@@ -24,23 +24,19 @@ def log_stats():
     client = MongoClient('mongodb://127.0.0.1:27017')
     logs_collection = client.logs.nginx
 
-    # Count the number of documents in the collection
     total_logs = logs_collection.count_documents({})
 
     print(f"{total_logs} logs")
 
     print("Methods:")
-    # Count the number of documents with each HTTP method
     methods = ["GET", "POST", "PUT", "PATCH", "DELETE"]
     for method in methods:
         count = logs_collection.count_documents({"method": method})
         print(f"\tmethod {method}: {count}")
 
-    # Count the number of documents with status check
     status_check_count = logs_collection.count_documents({"path": "/status"})
     print(f"{status_check_count} status check")
 
-    # Count the top 10 most present IPs
     pipeline = [
         {"$group": {"_id": "$ip", "count": {"$sum": 1}}},
         {"$sort": {"count": -1}},
