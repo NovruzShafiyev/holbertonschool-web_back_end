@@ -1,16 +1,13 @@
-/* eslint-disable */
-export function taskFirst() {
-    const task = 'I prefer const when I can.';
-    return task;
+export default function taskBlock(trueOrFalse) {
+  const task = false;
+  const task2 = true;
+
+  if (trueOrFalse) {
+    const task = true;
+    const task2 = false;
+
+    return [task2, task];
   }
-  
-  export function getLast() {
-    return ' is okay';
-  }
-  
-  export function taskNext() {
-    let combination = 'But sometimes let';
-    combination += getLast();
-  
-    return combination;
-  }
+
+  return [task, task2];
+}
